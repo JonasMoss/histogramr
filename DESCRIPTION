@@ -17,7 +17,6 @@ Suggests:
     covr
 RoxygenNote: 6.1.1
 LinkingTo: 
-    Rcpp,
-    RcppArmadillo
+    Rcpp
 Imports: 
     Rcpp

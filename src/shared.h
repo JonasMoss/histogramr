@@ -1,9 +1,7 @@
 #ifndef SHARED
 #define SHARED
 
-// [[Rcpp::depends(RcppArmadillo)]]
-
-#include <RcppArmadillo.h>
+#include <Rcpp.h>
 
 const double MIN_DIFF_EPS = 1e-8;
 
@@ -17,6 +15,5 @@ double rkt(int i,int j,double* data,int len,double k,double lim);
 double rkt_final(int i,double* data,int len,double k,double lim);
 double rlt(int i,int j,double* data,int len,double k,double lim);
 double rlt_final(int i,double* data,int len,double k,double lim);
-
 
 #endif
