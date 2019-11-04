@@ -18,10 +18,13 @@
 #'    in the coordinate search, while \code{modulator} limits the number of
 #'    times the algorithms runs.
 #'
-#' If \code{weights} is \code{"uequal"} an ordinary irregular histogram is
-#'    estimated, but if \code{weights} is \code{"equal"} an histogram with
-#'    equal areas for every bin is estimated instead, see
-#'    (Denby and Mallows, 2009). The option \code{"uequal"} is recommended.
+#' If \code{constraint} is \code{"none"} an ordinary irregular histogram is
+#'    estimated, but if \code{constraint} is \code{"equal_area"} an histogram
+#'    with equal areas for every bin is estimated instead, see
+#'    (Denby and Mallows, 2009). An equal-area histogram is not a bona fide
+#'    histogram in the sense that the area of a bin can fail to be proportial
+#'    to the number of observations falling in it. The option \code{"uequal"}
+#'    is recommended.
 #'
 #' For maximum likelihood estimation choose \code{type} equal to \code{"KL"}.
 #'    Choose \code{L2} for minimization of the L2 discrepancy. The \code{"L2"}
@@ -44,7 +47,8 @@
 #'    in \eqn{[0, 1]}.
 #' @param breaks a single number giving the number of cells for the histogram.
 #' @param method the method to be used. See ‘Details’. Can be abbreviated.
-#' @param weights the weights to be used. See ‘Details’. Can be abbreviated.
+#' @param constraint the constraint to use on the bins. See ‘Details’.
+#'     Can be abbreviated.
 #' @param type the type of discrepancy to minimize. See ‘Details’.
 #' @param plot logical. If \code{TRUE} (default), a histogram is plotted,
 #'     otherwise a list of breaks and counts is returned.
@@ -57,8 +61,8 @@
 #' @export
 
 histogramr <- function(x, breaks, method = c("greedy", "exact"),
-                      weights = c("unequal", "equal"), type = c("KL", "L2"),
-                      plot = TRUE, control, ...) {
+                      constraint = c("none", "equal_area"),
+                      type = c("KL", "L2"), plot = TRUE, control, ...) {
 
   x = x[!is.na(x)]
 
@@ -74,15 +78,16 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
   x = sort(x)
   n = length(x)
   method = match.arg(method)
-  weights = match.arg(weights)
+  constraint = match.arg(constraint)
   type = match.arg(type)
+  support = c(0, 1)
 
   if (missing(control)) control = NULL
   eps = if (is.null(control$eps)) eps = n ^ (- 1 / 2) else control$eps
 
   if (method == "exact") {
 
-    vals = cpp_exact(real_hist = (weights != "equal"),
+    vals = cpp_exact(real_hist = (constraint != "equal_area"),
                        l2 = (type == "L2"),
                        x = c(0, x, 1),
                        len = n,
@@ -97,7 +102,7 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
       stats::quantile(1:n, (1:(breaks - 1)) / breaks)
     } else control$init
 
-    vals = cpp_greedy(real_hist = (weights != "equal"),
+    vals = cpp_greedy(real_hist = (constraint != "equal_area"),
                       l2 = (type == "L2"),
                       x = c(0, x, 1),
                       len = n,
@@ -109,22 +114,29 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
   }
 
 
-  object = list()
-  class(object) = c("histogramr")
-  object$breaks = breaks
-  object$density = calculate_weights(n, breaks, weights, vals)
-  object$counts = object$density * n
-  object$splits = x[vals]
-  object$type = type
-  object$weights = weights
-  object$method = method
-  object$control = control
-  object$log_lik = loglik(object, x)
-  object$call = match.call()
-  object$xname = deparse(match.call()[[2]])
-  object$n = n
-  object$support = c(0, 1)
+  area = area(n, breaks, constraint, vals)
 
-  if (plot) plot(object, ...) else object
+  object = list()
+  class(object) = c("histogram")
+
+  object$breaks = c(support[1], x[vals], support[2])
+  object$density = area * 1 / diff(object$breaks)
+  object$mids = diff(object$breaks) / 2 + utils::head(object$breaks, -1)
+  object$counts = area * n
+  object$xname = deparse(match.call()[[2]])
+  object$equidist = FALSE
+
+  attr(object, "type") = type
+  attr(object, "constraint") = constraint
+  attr(object, "area") = area
+  attr(object, "method") = method
+  attr(object, "control") = control
+  attr(object, "logLik") = loglik(object, x)
+  attr(object, "n") = n
+  attr(object, "support") = support
+  attr(object, "call") = match.call()
+
+
+  if (plot) plot(object, freq = FALSE, ...) else object
 
 }

@@ -1,40 +1,45 @@
 loglik = function(object, x) {
 
-  splits = object$splits
-  weights = object$density
   breaks = object$breaks
+  splits = breaks[2:length(breaks) - 1]
+  area = attr(object, "area")
+  type = attr(object, "type")
+  n_breaks = length(splits)
+
   n = length(x)
 
   pn = c(0, sapply(splits, function(j) sum(x <= j) / n), 1)
-  splits_aug = c(0, splits, 1)
 
-  if (object$type == "KL") {
+  if (type == "KL") {
 
-    dis = sapply(1:breaks, function(i) {
-      - log(splits_aug[i + 1] - splits_aug[i]) + log(weights[i])
+    dis = sapply(1:n_breaks, function(i) {
+      - log(breaks[i + 1] - breaks[i]) + log(area[i])
       })
 
-    probs = sapply(1:breaks, function(i) pn[i + 1] - pn[i])
+    probs = sapply(1:n_breaks, function(i) pn[i + 1] - pn[i])
     probs[1] = probs[1] - 1 / n
-    probs[breaks] = probs[breaks] + 1 / n
+    probs[n_breaks] = probs[n_breaks] + 1 / n
     sum(probs * dis)
 
   } else {
 
-    dis = sapply(1:breaks, function(i) 1 / (splits_aug[i + 1] - splits_aug[i]))
-    probs = sapply(1:breaks, function(i) pn[i + 1] - pn[i])
+    dis = sapply(1:n_breaks, function(i) 1 / (breaks[i + 1] - breaks[i]))
+    probs = sapply(1:n_breaks, function(i) pn[i + 1] - pn[i])
     probs[1] = probs[1] - 1 / n
-    probs[breaks] = probs[breaks] + 1 / n
-    sum(weights * (2 * probs - weights) * dis)
+    probs[n_breaks] = probs[n_breaks] + 1 / n
+    sum(area * (2 * probs - area) * dis)
 
   }
+
 }
 
 
-calculate_weights = function(n, breaks, weights, vals) {
+area = function(n, breaks, constraint, vals) {
 
-  if (weights == "equal") {
+  if (constraint == "equal_area") {
+
     w = rep(1 / breaks, breaks)
+
   } else {
 
     w = c(sapply(1:breaks, function(i) {

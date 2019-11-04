@@ -5,8 +5,8 @@
 \title{Irregular histograms}
 \usage{
 histogramr(x, breaks, method = c("greedy", "exact"),
-  weights = c("unequal", "equal"), type = c("KL", "L2"), plot = TRUE,
-  control, ...)
+  constraint = c("none", "equal_area"), type = c("KL", "L2"),
+  plot = TRUE, control, ...)
 }
 \arguments{
 \item{x}{a vector of values for which the histogram is desired. \code{NA}
@@ -17,7 +17,8 @@ in \eqn{[0, 1]}.}
 
 \item{method}{the method to be used. See ‘Details’. Can be abbreviated.}
 
-\item{weights}{the weights to be used. See ‘Details’. Can be abbreviated.}
+\item{constraint}{the constraint to use on the bins. See ‘Details’.
+Can be abbreviated.}
 
 \item{type}{the type of discrepancy to minimize. See ‘Details’.}
 
@@ -49,10 +50,13 @@ The \code{method} option can be either of \code{"greedy"} or \code{"exact"}.
    in the coordinate search, while \code{modulator} limits the number of
    times the algorithms runs.
 
-If \code{weights} is \code{"uequal"} an ordinary irregular histogram is
-   estimated, but if \code{weights} is \code{"equal"} an histogram with
-   equal areas for every bin is estimated instead, see
-   (Denby and Mallows, 2009). The option \code{"uequal"} is recommended.
+If \code{constraint} is \code{"none"} an ordinary irregular histogram is
+   estimated, but if \code{constraint} is \code{"equal_area"} an histogram
+   with equal areas for every bin is estimated instead, see
+   (Denby and Mallows, 2009). An equal-area histogram is not a bona fide
+   histogram in the sense that the area of a bin can fail to be proportial
+   to the number of observations falling in it. The option \code{"uequal"}
+   is recommended.
 
 For maximum likelihood estimation choose \code{type} equal to \code{"KL"}.
    Choose \code{L2} for minimization of the L2 discrepancy. The \code{"L2"}
