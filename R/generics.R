@@ -3,7 +3,6 @@
 #' @param object A \code{histogramr} object.
 #' @param ... Passed to \code{plot} down the line.
 #' @keywords internal
-
 plot_wrangler = function(x, ...) {
 
   defaults = list(xlab = x$xname,
@@ -16,7 +15,7 @@ plot_wrangler = function(x, ...) {
                    y = list(...))
 
   splits = c(0, x$splits, 1)
-  diffs = sapply(1:x$breaks, function(i) 1/(splits[i+1] - splits[i]))
+  diffs = sapply(1:x$breaks, function(i) 1 / (splits[i + 1] - splits[i]))
   args$x = splits
   args$y = c(0, x$density * diffs)
   args
@@ -34,7 +33,6 @@ plot_wrangler = function(x, ...) {
 #' @examples
 #'   histogramr(USArrests$Rape/100, breaks = 7)
 #' @export
-
 plot.histogramr = function(x, ...) {
 
   args = plot_wrangler(x, ...)
@@ -50,20 +48,18 @@ plot.histogramr = function(x, ...) {
 #' @rdname plot.histogramr
 lines.histogramr = function(x, ...) {
 
-  args = plot_wrangler(x,...)
+  args = plot_wrangler(x, ...)
   args$type = type = "S"
   do.call(graphics::lines, args)
   args$type = type = "h"
   do.call(graphics::lines, args)
   invisible(x)
 
-
 }
 
 #' @export
 summary.histogramr = function(object, ...) {
-  data.name =  deparse(as.list(attr(object, "call"))$x)
-  digits = list(...)$digits
+
   cat("\nIrregular histogram of", object$xname, "\n",
       "\nCall: ", deparse(object$call), "\n")
   cat("\nData:            ",  object$xname, " (", object$n, " obs.)\n",
@@ -76,6 +72,7 @@ summary.histogramr = function(object, ...) {
       "Type:            ", object$type, "\n",
       sep = "")
   invisible(object)
+
 }
 
 #' @export
