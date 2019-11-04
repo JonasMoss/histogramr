@@ -1,0 +1,23 @@
+Package: histogramr
+Title: Estimate and plot irregular histograms.
+Version: 0.0.0.9000
+Authors@R: 
+    person(given = "Jonas",
+           family = "Moss",
+           role = c("aut", "cre"),
+           email = "jonas.gjertsen@gmail.com",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: Estimate and plot histograms with varying bin widths using a 
+   selection of methods.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat,
+    covr
+RoxygenNote: 6.1.1
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo
+Imports: 
+    Rcpp
