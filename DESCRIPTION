@@ -1,5 +1,5 @@
 Package: histogramr
-Title: Estimate and plot irregular histograms.
+Title: Estimate and plot irregular histograms
 Version: 0.0.0.9000
 Authors@R: 
     person(given = "Jonas",
