@@ -83,7 +83,8 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
   support = c(0, 1)
 
   if (missing(control)) control = NULL
-  eps = if (is.null(control$eps)) eps = n ^ (- 1 / 2) else control$eps
+
+  if (is.null(control$eps)) control$eps = n ^ (- 1 / 2)
 
   if (method == "exact") {
 
@@ -92,27 +93,28 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
                        x = c(0, x, 1),
                        len = n,
                        k = breaks,
-                       eps = eps)[breaks - 1, ]
+                       eps = control$eps)[breaks - 1, ]
 
   } else {
 
-    modulator = if (is.null(control$modulator)) 10 else control$modulator
+    if (is.null(control$modulator)) control$modulator = 10
 
-    init = if (is.null(control$init)) {
-      stats::quantile(1:n, (1:(breaks - 1)) / breaks)
-    } else control$init
+    if (is.null(control$init)) {
+
+      control$init = stats::quantile(1:n, (1:(breaks - 1)) / breaks)
+
+    }
 
     vals = cpp_greedy(real_hist = (constraint != "equal_area"),
                       l2 = (type == "L2"),
                       x = c(0, x, 1),
                       len = n,
                       k = breaks,
-                      modulator = modulator,
-                      init = init,
-                      eps = eps)[-breaks]
+                      modulator = control$modulator,
+                      init = control$init,
+                      eps = control$eps)[-breaks]
 
   }
-
 
   area = area(n, breaks, constraint, vals)
 
@@ -135,7 +137,6 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
   attr(object, "n") = n
   attr(object, "support") = support
   attr(object, "call") = match.call()
-
 
   if (plot) plot(object, freq = FALSE, ...) else object
 
