@@ -1,20 +1,29 @@
 #' @export
 summary.histogramr = function(object, ...) {
 
+  digits = list(...)$digits
+  if(is.null(digits)) digits = 3
+
   cat("\nIrregular histogram of", object$xname, "\n",
-      "\nCall: ", deparse(object$call), "\n")
-  cat("\nData:            ",  object$xname, " (", object$n, " obs.)\n",
-      "Support:         (", object$support[1], ", ", object$support[2],   ")\n",
-      "Breaks:          ", object$splits, "\n",
-      "Break number:    ", object$n_breaks, "\n",
-      "Density:         ", object$density, "\n",
-      "Method:          ", object$method, "\n",
-      "Weights:         ", object$weights, "\n",
-      "Type:            ", object$type, "\n",
+      "\nCall: ", deparse(attr(object, "call")), "\n")
+
+  cat("\nBreaks:\n  ")
+  print.default(format(object$breaks, digits = digits), print.gap = 2L, quote = FALSE)
+  cat("\nDensity:\n  ")
+  print.default(format(object$density, digits = digits), print.gap = 2L, quote = FALSE)
+
+  cat("\nData:            ",  object$xname, " (", attr(object, "n"), " obs.)\n",
+      "Support:         (", attr(object, "support")[1], ", ",
+                            attr(object, "support")[2],   ")\n",
+      "Break number:    ", length(object$breaks), "\n",
+      "Method:          ", attr(object, "method"), "\n",
+      "Constraint:      ", attr(object, "constraint"), "\n",
+      "Type:            ", attr(object, "type"), "\n\n",
       sep = "")
+
   invisible(object)
 
 }
 
 #' @export
-logLik.histogramr = function(object, ...) object$logLik
+logLik.histogramr = function(object, ...) attr(object, "logLik")

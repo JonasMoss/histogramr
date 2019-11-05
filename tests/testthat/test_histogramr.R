@@ -5,7 +5,7 @@ x = rbeta(10, 2, 7)
 
 expect_error(histogramr(NA))
 expect_error(histogramr(x, breaks = 12))
-expect_error(histogramr(c(x, -1)), breaks = 5)
+expect_error(histogramr(c(x, -1), breaks = 5))
 expect_error(histogramr(x))
 
 

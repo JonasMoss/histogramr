@@ -66,14 +66,14 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
 
   x = x[!is.na(x)]
 
+  if (missing(breaks))
+    stop("Supply a number of break points, please.")
+
   if (length(x) < breaks - 1)
     stop("x must contain at least (breaks - 1) non-na values.")
 
   if (max(x) > 1 | min(x) < 0)
     stop("x must be contained in the unit interval")
-
-  if (missing(breaks))
-    stop("Supply a number of break points, please.")
 
   x = sort(x)
   n = length(x)
@@ -119,7 +119,7 @@ histogramr <- function(x, breaks, method = c("greedy", "exact"),
   area = area(n, breaks, constraint, vals)
 
   object = list()
-  class(object) = c("histogram")
+  class(object) = c("histogram", "histogramr")
 
   object$breaks = c(support[1], x[vals], support[2])
   object$density = area * 1 / diff(object$breaks)
